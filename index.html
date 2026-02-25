@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Colorful Link Gallery (Local Images)</title>
+  <style>
+    :root{
+      --bg:#070915; --text:#eef2ff; --muted:#b6b8d6;
+      --glass: rgba(255,255,255,.08);
+      --stroke: rgba(255,255,255,.14);
+      --shadow: 0 22px 70px rgba(0,0,0,.55);
+      --r: 22px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; color:var(--text);
+      font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background: radial-gradient(1200px 800px at 15% 20%, rgba(255,0,153,.20), transparent 55%),
+                  radial-gradient(1100px 700px at 85% 25%, rgba(0,255,196,.16), transparent 55%),
+                  radial-gradient(900px 650px at 50% 90%, rgba(96,165,250,.14), transparent 55%),
+                  linear-gradient(180deg, #060718, #070915 55%, #060718);
+      min-height:100vh; overflow-x:hidden;
+    }
+    .blob{
+      position:fixed; width:520px; height:520px; filter: blur(35px);
+      opacity:.55; z-index:-1; border-radius: 999px;
+      animation: float 10s ease-in-out infinite; mix-blend-mode: screen;
+    }
+    .b1{ left:-160px; top:-160px; background: radial-gradient(circle at 30% 30%, #ff2bd6, transparent 55%);}
+    .b2{ right:-180px; top:120px; background: radial-gradient(circle at 30% 30%, #00ffd1, transparent 55%); animation-delay:-2s;}
+    .b3{ left:22%; bottom:-220px; background: radial-gradient(circle at 30% 30%, #60a5fa, transparent 55%); animation-delay:-4s;}
+    @keyframes float{ 0%,100%{transform:translate3d(0,0,0) scale(1)} 50%{transform:translate3d(0,-18px,0) scale(1.05)} }
+
+    .wrap{ max-width:1200px; margin:0 auto; padding:28px 16px 48px;}
+    .top{ display:flex; gap:16px; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; margin-bottom:16px; }
+    .brand{ display:flex; flex-direction:column; gap:8px; }
+    .brand h1{ margin:0; font-size:28px; letter-spacing:.2px; display:flex; gap:10px; align-items:center; }
+    .logo{
+      width:40px;height:40px;border-radius:14px;
+      background: conic-gradient(from 210deg, #ff2bd6, #7c3aed, #2563eb, #00ffd1, #ff2bd6);
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+    }
+    .brand p{ margin:0; color:var(--muted); max-width:720px; line-height:1.35;}
+
+    .toolbar{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end; }
+    .search{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px; background: var(--glass);
+      border:1px solid var(--stroke); border-radius: 16px;
+      backdrop-filter: blur(12px); box-shadow: var(--shadow);
+      min-width: 280px;
+    }
+    .search input{ width:100%; border:0; outline:0; background:transparent; color:var(--text); font-size:14px; }
+
+    .pillbar{ display:flex; gap:8px; flex-wrap:wrap; margin: 14px 0 18px; }
+    .pill{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      backdrop-filter: blur(10px);
+      color: var(--text);
+      border-radius: 999px;
+      padding:8px 12px;
+      font-weight:800;
+      cursor:pointer;
+      user-select:none;
+      transition: transform .12s ease, filter .12s ease, background .12s ease;
+    }
+    .pill:hover{ transform: translateY(-1px); filter: brightness(1.06); }
+    .pill.active{
+      background: linear-gradient(90deg, rgba(255,43,214,.22), rgba(0,255,209,.18), rgba(96,165,250,.18));
+      border-color: rgba(255,255,255,.22);
+    }
+
+    .grid{ display:grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
+    @media (max-width: 980px){ .grid{ grid-template-columns: repeat(8,1fr);} }
+    @media (max-width: 640px){ .grid{ grid-template-columns: repeat(4,1fr);} }
+
+    .card{
+      grid-column: span 4;
+      position:relative;
+      border-radius: var(--r);
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      transform-style: preserve-3d;
+      transition: transform .18s ease, border-color .18s ease, filter .18s ease;
+      cursor:pointer;
+      min-height: 270px;
+      opacity:0;
+      animation: pop .55s ease forwards;
+    }
+    @keyframes pop{
+      from { transform: translateY(10px) scale(.98); opacity:0; }
+      to   { transform: translateY(0) scale(1); opacity:1; }
+    }
+    .card:hover{ border-color: rgba(255,255,255,.28); filter: saturate(1.06); }
+
+    .cover{
+      height:150px; position:relative;
+      background: radial-gradient(circle at 20% 20%, rgba(255,43,214,.35), transparent 55%),
+                  radial-gradient(circle at 80% 10%, rgba(0,255,209,.25), transparent 55%),
+                  radial-gradient(circle at 50% 90%, rgba(96,165,250,.22), transparent 55%),
+                  linear-gradient(120deg, rgba(124,58,237,.28), rgba(37,99,235,.18));
+    }
+    .cover img{ width:100%; height:100%; object-fit: cover; display:block; opacity:.95; transform: scale(1.02); }
+    .shine{
+      position:absolute; inset:-40%;
+      background: linear-gradient(120deg, transparent 40%, rgba(255,255,255,.14), transparent 60%);
+      transform: rotate(12deg) translateX(-30%);
+      animation: shine 6.8s ease-in-out infinite;
+      pointer-events:none;
+    }
+    @keyframes shine{
+      0%,100%{ transform: rotate(12deg) translateX(-35%); opacity:.35; }
+      50%{ transform: rotate(12deg) translateX(35%); opacity:.55; }
+    }
+
+    .content{ padding: 12px 12px 14px; display:flex; flex-direction:column; gap:8px; }
+    .titleRow{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .name{ margin:0; font-size:16px; font-weight:900; letter-spacing:.2px; }
+    .tag{
+      font-size:12px; font-weight:900;
+      padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.18);
+      white-space:nowrap;
+    }
+    .desc{ margin:0; color: var(--muted); font-size:13px; line-height:1.35; min-height: 34px; }
+    .meta{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:4px; }
+    .url{ color: rgba(255,255,255,.72); font-size:12px; max-width:78%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .go{
+      display:inline-flex; align-items:center; gap:8px;
+      font-weight:900; padding:9px 12px; border-radius: 14px;
+      border:1px solid rgba(255,255,255,.18);
+      background: linear-gradient(90deg, rgba(255,43,214,.22), rgba(96,165,250,.18), rgba(0,255,209,.16));
+      box-shadow: 0 18px 50px rgba(0,0,0,.35);
+    }
+    .empty{
+      margin-top:16px;
+      border:1px dashed rgba(255,255,255,.22);
+      border-radius: 18px;
+      padding:14px;
+      color: var(--muted);
+      text-align:center;
+      background: rgba(255,255,255,.05);
+    }
+    .note{ margin-top:16px; color: rgba(255,255,255,.55); font-size:12px; }
+  </style>
+</head>
+<body>
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <h1><span class="logo"></span>D Square Solar</h1>
+        
+      </div>
+
+      <div class="toolbar">
+        <div class="search">
+          <span style="opacity:.85">🔎</span>
+          <input id="q" placeholder="Search by name / category..." />
+        </div>
+      </div>
+    </div>
+
+    <div id="pillbar" class="pillbar"></div>
+    <div id="grid" class="grid"></div>
+    <div id="empty" class="empty" style="display:none;"></div>
+
+    
+  <script>
+    /* ============================
+       ✅ EDIT HERE (local images)
+       ============================ */
+    const DATA = [
+      { name:"Customer Home Page", url:"https://dmedsquaresolar.github.io/homepage/", image:"Customer Home Page.jpg",    category:"Customer Page"},
+      { name:"Add New Querys",    url:"https://dmedsquaresolar.github.io/CustomersQuerys/", image:"Add New Querys.jpg", category:"Customer Page"},
+      { name:"Get Estimate",       url:"https://dmedsquaresolar.github.io/estimate/",  image:"Get Estimate.jpg",category:"Customer Page"},
+      { name:"Customer Query Tracker",   url:"https://dmedsquaresolar.github.io/customertrack/",image:"Customer Query Tracker.jpg",category:"Customer Page"},
+{ name:"Management Login Page",   url:"https://dmedsquaresolar.github.io/Queryassign/",image:"Management Login Page.jpg",category:"Management Page"},
+{ name:"Technician Login Page",   url:"https://dmedsquaresolar.github.io/Queryclose/",image:"Technician Login Page.jpg",category:"Technician Page"},
+{ name:"Admin Login Page",   url:"https://dmedsquaresolar.github.io/Admintracker/",image:"Admin Login Page.jpg",category:"Admin Page"},
+    ];
+
+    const grid = document.getElementById("grid");
+    const empty = document.getElementById("empty");
+    const pillbar = document.getElementById("pillbar");
+    const q = document.getElementById("q");
+
+    // Local fallback (no network needed)
+    const FALLBACK_IMG =
+      "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="1400" height="700">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#ff2bd6"/>
+            <stop offset="0.5" stop-color="#2563eb"/>
+            <stop offset="1" stop-color="#00ffd1"/>
+          </linearGradient>
+        </defs>
+        <rect width="1400" height="700" fill="url(#g)"/>
+        <circle cx="1120" cy="170" r="170" fill="rgba(255,255,255,.14)"/>
+        <circle cx="260" cy="560" r="240" fill="rgba(0,0,0,.18)"/>
+        <text x="70" y="420" font-size="68" fill="rgba(255,255,255,.9)" font-family="Arial" font-weight="800">
+          Image Missing
+        </text>
+      </svg>`);
+
+    const uniq = (arr) => [...new Set(arr.filter(Boolean))];
+    let activeCat = "All";
+
+    function buildPills(){
+      const cats = uniq(["All", ...DATA.map(x => x.category || "Other")]);
+      pillbar.innerHTML = "";
+      cats.forEach(cat => {
+        const b = document.createElement("div");
+        b.className = "pill" + (cat === activeCat ? " active" : "");
+        b.textContent = cat;
+        b.onclick = () => {
+          activeCat = cat;
+          [...pillbar.children].forEach(x => x.classList.remove("active"));
+          b.classList.add("active");
+          render();
+        };
+        pillbar.appendChild(b);
+      });
+    }
+
+    function matches(item, query){
+      const s = (item.name + " " + (item.category||"") + " " + (item.desc||"")).toLowerCase();
+      return s.includes(query.toLowerCase());
+    }
+
+    function render(){
+      const query = q.value.trim();
+      const items = DATA.filter(it => {
+        const catOk = (activeCat === "All") || ((it.category || "Other") === activeCat);
+        const qOk = !query || matches(it, query);
+        return catOk && qOk;
+      });
+
+      grid.innerHTML = "";
+      if (!items.length){
+        empty.style.display = "block";
+        empty.textContent = "No results. Search clear karo ya category change karo.";
+        return;
+      }
+      empty.style.display = "none";
+
+      items.forEach((it, idx) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.style.animationDelay = (idx * 40) + "ms";
+
+        // 3D tilt
+        card.addEventListener("mousemove", (e) => {
+          const r = card.getBoundingClientRect();
+          const x = e.clientX - r.left;
+          const y = e.clientY - r.top;
+          const rx = ((y / r.height) - 0.5) * -10;
+          const ry = ((x / r.width) - 0.5) * 10;
+          card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-3px)`;
+        });
+        card.addEventListener("mouseleave", () => card.style.transform = "");
+
+        card.onclick = () => window.open(it.url, "_blank", "noopener,noreferrer");
+
+        const cover = document.createElement("div");
+        cover.className = "cover";
+
+        const img = document.createElement("img");
+        img.src = it.image || FALLBACK_IMG; // local path here ✅
+        img.alt = it.name;
+        img.loading = "lazy";
+        img.onerror = () => { img.src = FALLBACK_IMG; }; // no error ✅
+
+        const shine = document.createElement("div");
+        shine.className = "shine";
+
+        cover.appendChild(img);
+        cover.appendChild(shine);
+
+        const content = document.createElement("div");
+        content.className = "content";
+
+        const titleRow = document.createElement("div");
+        titleRow.className = "titleRow";
+
+        const name = document.createElement("h3");
+        name.className = "name";
+        name.textContent = it.name;
+
+        const tag = document.createElement("div");
+        tag.className = "tag";
+        tag.textContent = (it.category || "Other");
+
+        titleRow.appendChild(name);
+        titleRow.appendChild(tag);
+
+        const desc = document.createElement("p");
+        desc.className = "desc";
+        desc.textContent = it.desc || "Click to open.";
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+
+        const url = document.createElement("div");
+        url.className = "url";
+        url.textContent = it.url;
+
+        const go = document.createElement("div");
+        go.className = "go";
+        go.innerHTML = "Open <span style='opacity:.85'>↗</span>";
+
+        meta.appendChild(url);
+        meta.appendChild(go);
+
+        content.appendChild(titleRow);
+        content.appendChild(desc);
+        content.appendChild(meta);
+
+        card.appendChild(cover);
+        card.appendChild(content);
+
+        grid.appendChild(card);
+      });
+    }
+
+    q.addEventListener("input", render);
+    buildPills();
+    render();
+  </script>
+</body>
+</html>
